@@ -12,7 +12,7 @@ int main(int argc, char *argv[]){
   int sockfd, numbytes;
   char buf[MAX_BUF];
   struct addrinfo hints, *results, *index;
-  struct sockaddr_in sockAddrAccept;
+  struct sockaddr_storage sockAddrAccept;
   int status;
   socklen_t addrlen;
   if (argc != 2){
@@ -43,11 +43,11 @@ int main(int argc, char *argv[]){
     fprintf(stderr, "listener: failed to bind socket\n");
     return 2;
   }
-  listen(s, 2);
+  listen(sockfd, 2);
   socklen_t addr_size = sizeof(sockAddrAccept);
   int new_fd;
   while(1){
-    if ((new_fd = accept(s, &sockAddrAccept, &addr_size)) < 0){
+    if ((new_fd = accept(sockfd, &sockAddrAccept, &addr_size)) < 0){
       fprintf(stderr, "Didn't accept");
       return 1;
     }
