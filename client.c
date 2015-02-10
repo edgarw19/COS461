@@ -19,8 +19,8 @@ int main(int argc, char *argv[]){
     printf("Invalid file");
     return 1;
   }
-  if (argc != 2){
-    fprintf(stderr, "usage: showip hostname\n");
+  if (argc != 3){
+    fprintf(stderr, "usage: iphostname port\n");
     return 1;
   }
   memset(&hints, 0, sizeof(hints));
@@ -28,19 +28,18 @@ int main(int argc, char *argv[]){
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   char buf[100];
-  
-  if ((status = getaddrinfo(argv[1], NULL, &hints, &results) != 0)){
+  if ((status = getaddrinfo(argv[1], argv[2], &hints, &results) != 0)){
     fprintf(stderr, "getaddrinfo error");
     return 1;
   }
   
-  s = socket(index->ai_family, index->ai_socktype, index->ai_protocol);
+  s = socket(results->ai_family, results->ai_socktype, results->ai_protocol);
   if (s == -1) {
     perror("client: socket");
 	  return 1;
 	}
   
-  if (connect(s, index->ai_addr, index->ai_addrlen) == -1){
+  if (connect(s, results->ai_addr, results->ai_addrlen) == -1){
     close(s);
     perror("client: connect");
     return 1;

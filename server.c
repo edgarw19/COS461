@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#define MAX_BUF 4096
+#define MAX_BUF 10
 int main(int argc, char *argv[]){
   int sockfd, numbytes;
   char buf[MAX_BUF];
@@ -16,12 +16,13 @@ int main(int argc, char *argv[]){
   int status;
   socklen_t addrlen;
   if (argc != 2){
-    fprintf(stderr, "usage: client hostname");
+    fprintf(stderr, "usage: port name\n");
     exit(1);
   }
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
   if ((status=getaddrinfo(NULL, argv[1], &hints, &results)) != 0){
     fprintf(stderr, "getaddrinfo error\n");
   }
@@ -44,17 +45,23 @@ int main(int argc, char *argv[]){
     return 2;
   }
   listen(sockfd, 2);
-  socklen_t addr_size = sizeof(sockAddrAccept);
+   socklen_t addr_size = sizeof(sockAddrAccept);
   int new_fd;
   while(1){
-    if ((new_fd = accept(sockfd, &sockAddrAccept, &addr_size)) < 0){
+    if ((new_fd = accept(sockfd, (struct sockaddr*)&sockAddrAccept, &addr_size)) < 0){
       fprintf(stderr, "Didn't accept");
       return 1;
     }
-    while (addr_size = recv(new_fd, buf, sizeof(buf), 0)){
-      fwrite(buf, 1, sizeof(buf), stdout);
-    }
+    //    if (!fork()){
+    //close(sockfd);
+      while (addr_size = recv(new_fd, buf, sizeof(buf), 0)){
+	fwrite(buf, 1, sizeof(buf), stdout);
+      }
+      //exit(0);
+      //}
+    close(new_fd);
+    
   }
-  
+  return 0;
   
 }
